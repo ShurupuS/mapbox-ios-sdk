@@ -26,6 +26,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import "RMTile.h"
 #import "RMFoundation.h"
