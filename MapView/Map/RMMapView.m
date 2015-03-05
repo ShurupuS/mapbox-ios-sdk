@@ -696,7 +696,7 @@
     _delegateHasSingleTapTwoFingersOnMap = [_delegate respondsToSelector:@selector(singleTapTwoFingersOnMap:at:)];
     _delegateHasLongPressOnMap = [_delegate respondsToSelector:@selector(longPressOnMap:at:)];
 
-    _delegateHasTapOnAnnotation = [_delegate respondsToSelector:@selector(tapOnAnnotation:onMap:)];
+    _delegateHasTapOnAnnotation = [_delegate respondsToSelector:@selector(tapOnAnnotation:onMap:at:)];
     _delegateHasDoubleTapOnAnnotation = [_delegate respondsToSelector:@selector(doubleTapOnAnnotation:onMap:)];
     _delegateHasLongPressOnAnnotation = [_delegate respondsToSelector:@selector(longPressOnAnnotation:onMap:)];
     _delegateHasTapOnCalloutAccessoryControlForAnnotation = [_delegate respondsToSelector:@selector(tapOnCalloutAccessoryControl:forAnnotation:onMap:)];
@@ -1886,7 +1886,7 @@
 
     if (_delegateHasTapOnAnnotation && anAnnotation)
     {
-        [_delegate tapOnAnnotation:anAnnotation onMap:self];
+        [_delegate tapOnAnnotation:anAnnotation onMap:self at:aPoint];
     }
     else
     {
@@ -2043,7 +2043,7 @@
     }
     else if (_delegateHasTapOnAnnotation && anAnnotation)
     {
-        [_delegate tapOnAnnotation:anAnnotation onMap:self];
+        [_delegate tapOnAnnotation:anAnnotation onMap:self at:aPoint];
     }
     else
     {
