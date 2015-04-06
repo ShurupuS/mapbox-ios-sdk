@@ -156,6 +156,7 @@
     BOOL _delegateHasDidUpdateUserLocation;
     BOOL _delegateHasDidFailToLocateUserWithError;
     BOOL _delegateHasDidChangeUserTrackingMode;
+    BOOL _delegateHasDidChangeOrderingForAnnotations;
 
     UIView *_backgroundView;
     RMMapScrollView *_mapScrollView;
@@ -719,6 +720,7 @@
     _delegateHasDidUpdateUserLocation = [_delegate respondsToSelector:@selector(mapView:didUpdateUserLocation:)];
     _delegateHasDidFailToLocateUserWithError = [_delegate respondsToSelector:@selector(mapView:didFailToLocateUserWithError:)];
     _delegateHasDidChangeUserTrackingMode = [_delegate respondsToSelector:@selector(mapView:didChangeUserTrackingMode:animated:)];
+    _delegateHasDidChangeOrderingForAnnotations = [_delegate respondsToSelector:@selector(mapViewDidChangeOrderingForAnnotations:)];
 }
 
 - (void)registerMoveEventByUser:(BOOL)wasUserEvent
@@ -1069,6 +1071,7 @@
                                  ((planetBounds.size.height - normalizedProjectedPoint.y - boundsRect.size.height) / _metersPerPixel) / zoomScale,
                                  (boundsRect.size.width / _metersPerPixel) / zoomScale,
                                  (boundsRect.size.height / _metersPerPixel) / zoomScale);
+    NSLog(@"ZOOM_RECT = %@", NSStringFromCGRect(zoomRect));
     [_mapScrollView zoomToRect:zoomRect animated:animated];
 }
 
@@ -2770,6 +2773,9 @@
     normalizedProjectedPoint.x = ((pixelCoordinate.x + _mapScrollView.contentOffset.x) * _metersPerPixel) - fabs(planetBounds.origin.x);
     normalizedProjectedPoint.y = ((_mapScrollView.contentSize.height - _mapScrollView.contentOffset.y - pixelCoordinate.y) * _metersPerPixel) - fabs(planetBounds.origin.y);
 
+//    NSLog(@"CONTENT_SIZE: %@", NSStringFromCGSize(_mapScrollView.contentSize));
+//    NSLog(@"CONTENT_OFFSET_POINT: %@", NSStringFromCGPoint(_mapScrollView.contentOffset));
+    
 //    RMLog(@"pixelToPoint: {%f,%f} -> {%f,%f}", pixelCoordinate.x, pixelCoordinate.y, normalizedProjectedPoint.x, normalizedProjectedPoint.y);
 
     return normalizedProjectedPoint;
@@ -2902,6 +2908,11 @@
     southeastLL = [self pixelToCoordinate:southeastScreen];
     southwestLL = [self pixelToCoordinate:southwestScreen];
 
+    NSLog(@"NORTH_EAST {%f %f}", northeastLL.longitude, northeastLL.latitude);
+    NSLog(@"NORTH_WEST {%f %f}", northwestLL.longitude, northwestLL.latitude);
+    NSLog(@"SOUTH_EAST {%f %f}", southeastLL.longitude, southeastLL.latitude);
+    NSLog(@"SOUTH_WEST {%f %f}", southwestLL.longitude, southwestLL.latitude);
+    
     boundingBox.northEast.latitude = fmax(northeastLL.latitude, northwestLL.latitude);
     boundingBox.southWest.latitude = fmin(southeastLL.latitude, southwestLL.latitude);
 
@@ -2918,6 +2929,8 @@
     else
         boundingBox.northEast.longitude = fmin(northeastLL.longitude, southeastLL.longitude);
 
+        RMLog(@"BOUNDING BOX {%f,%f} {%f,%f)", boundingBox.southWest.longitude, boundingBox.southWest.latitude, boundingBox.northEast.longitude, boundingBox.northEast.latitude);
+    
     return boundingBox;
 }
 
@@ -3191,6 +3204,10 @@
     //
     if (_currentAnnotation)
         _currentAnnotation.layer.zPosition = _currentCallout.layer.zPosition = MAXFLOAT;
+    
+    if (_delegateHasDidChangeOrderingForAnnotations) {
+        [_delegate mapViewDidChangeOrderingForAnnotations:self];
+    }
 }
 
 - (NSArray *)annotations
